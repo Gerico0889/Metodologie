@@ -1,0 +1,27 @@
+#Doxygen
+
+##Commenti con marcatore
+
+Se nei commenti aggiungo il marcatore "!", i commenti verranno letti da doxygen e mi permetteranno di comporre la documentazione del mio programma.
+
+* //!
+* /*!  */
+* \relates "nome classe"
+* \pre
+* \p
+
+Mi servono anche a formare precondizioni per l'utilizzo dei metodi.
+
+Il marcatore **\relates "nomeclasse"** nei commenti dei metodi all'infuori della classe mi indica che la documentazione di quel metodo sarà correlata a quella della classe.
+
+Il marcatore **\pre** mi permette di definire delle precondizioni che verrano descritte nella documentazione.
+
+Il marcatore **\p** permette di indicare la prossima parola come un parametro che verrà formattata diversamente nella documentazione.
+
+Doxygen funziona come un compilatore, permette di creare documentazione C++ interpretando il codice e tutti i commenti che hanno i vari marcatori.
+
+---
+
+Le assert, oltre che all'inizio e alla fine di un algoritmo, posso inserirle anche durante le varie operazioni. 
+
+Faccio così per migliorare il debugging e per capire facilmente dove sono eventuali errori (sopratutto se un algoritmo è diviso in più fasi o è complicato).

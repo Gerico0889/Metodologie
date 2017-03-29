@@ -1,0 +1,8 @@
+#include <iostream>
+
+int main()
+{
+  bool b2 {7};
+  std::cout << b2;
+  return 0;
+}

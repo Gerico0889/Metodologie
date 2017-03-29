@@ -1,0 +1,7 @@
+#include <iostream>
+
+int main()
+{
+  const int dm = 17;
+  int var = 18;
+  constexpr double max1 = 1.4 * (dm * dm)

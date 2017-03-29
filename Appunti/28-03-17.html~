@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+<title>28-03-17.html</title>
+
+</head>
+
+<body>
+
+<h1>Doxygen</h1>
+
+<h2>Commenti con marcatore</h2>
+
+<p>Se nei commenti aggiungo il marcatore "!", i commenti verranno letti da doxygen e mi permetteranno di comporre la documentazione del mio programma.</p>
+
+<ul>
+<li>//!</li>
+<li>/*!  */</li>
+<li>\relates "nome classe"</li>
+<li>\pre</li>
+<li>\p</li>
+</ul>
+
+<p>Mi servono anche a formare precondizioni per l'utilizzo dei metodi.</p>
+
+<p>Il marcatore <strong>\relates "nomeclasse"</strong> nei commenti dei metodi all'infuori della classe mi indica che la documentazione di quel metodo sarà correlata a quella della classe.</p>
+
+<p>Il marcatore <strong>\pre</strong> mi permette di definire delle precondizioni che verrano descritte nella documentazione.</p>
+
+<p>Il marcatore <strong>\p</strong> permette di indicare la prossima parola come un parametro che verrà formattata diversamente nella documentazione.</p>
+
+<p>Doxygen funziona come un compilatore, permette di creare documentazione C++ interpretando il codice e tutti i commenti che hanno i vari marcatori.</p>
+
+<hr />
+
+<p>Le assert, oltre che all'inizio e alla fine di un algoritmo, posso inserirle anche durante le varie operazioni. </p>
+
+<p>Faccio così per migliorare il debugging e per capire facilmente dove sono eventuali errori (sopratutto se un algoritmo è diviso in più fasi o è complicato).</p>
+
+<hr />
+
+<p>Per migliorare le prestazioni, posso creare un altro header file che conterrà tutte le definizioni delle funzioni inline.</p>
+
+<p>Se definisco la funzione all'interno della classe, è implicitamente definita come inline.</p>
+
+<hr />
+
+<h1>Contratto Wide</h1>
+
+<p>Per segnalare errori nei costruttori utilizzo le eccezioni</p>
+
+<pre><code>Razionale::Razionale(Int num, Int den)
+{
+  if(den==0)
+    throw Razionale_Invalido();
+  ...
+  ...
+}
+</code></pre>
+
+<p>Lanciando l'eccezione nel costruttore mi permette di uscire da esso senza creare l'oggetto, quindi non verrà allocata memoria e non verrà chiamato il distruttore.</p>
+
+<h2>Esempio:</h2>
+
+<pre><code>void job()
+{
+  Res* r1 = acquisisci_risorsa("res1");
+  Res* r2 = acquisisci_risorsa("res2");
+  do_task(r1,r2);
+  rilascia_risorsa(r2);
+  Res* r3 = acquisisci_risorsa("res3");
+  do_task(r1,r3);
+  rilascia_risorsa(r3);
+  rilascia_risorsa(r1);
+}
+</code></pre>
+
+<p>Se utilizzo una risorsa e non mi serve più devo sempre rilasciarla per evitare <strong>resource leak</strong>.</p>
+
+<p>Il flusso della funzione non è unico in quanto ogni volta che richiamo una funzione essa può generare eccezioni che causano il salto delle istruzioni fino alla fine della funzione. </p>
+
+<p>Il flusso quindi può avere numerose biforcazioni in base al numero di chiamate di funzioni all'interno della funzione.</p>
+
+<ul>
+<li>Considerando numerosi flussi di esecuzione, sono sicuro di non avere resource leak?</li>
+</ul>
+
+<p>Se sono completamente sicuro che tutto va a buon fine non ho resource leak.</p>
+
+<p>Contrariamente se qualche funzione mi lancia un'eccezione non sono così sicuro di non avere resource leak (a meno che l'eccezione non la lanciano le funzioni che acquisiscono le risorse, in quel caso le risorse non vengono neanche acquisite).</p>
+
+<p>In poche parole il codice è <em>safe</em> se suppongo l'esecuzione senza problemi, è <em>unsafe</em> se prevedo delle eccezioni nell'esecuzione. Dico che è <em>exception safe</em> se il codice rilascia tutte le risorse anche se vengono sollevate delle eccezioni.</p>
+
+<ul>
+<li>Come faccio ad avere un codice <em>exception safe</em>?</li>
+</ul>
+
+<p>Utilizzo dei try per ogni risorsa che viene acquisita, metto dei catch(...) che catturano qualsiasi errore e nel catch rilascio la risorsa rilanciando l'eccezione</p>
+
+<pre><code>void job()
+    {
+      Res* r1 = acquisisci_risorsa("res1");
+      try {  //Protettore di r1
+
+        Res* r2 = acquisisci_risorsa("res2");
+        try {   //Protettore di r2
+          do_task(r1,r2);
+          rilascia_risorsa(r2);
+        }
+        catch (...) {
+          rilascia_risorsa(r2);
+          throw;
+        } 
+        rilascia_risorsa(r1);
+        rilascia_risorsa(r2);
+        Res* r3 = acquisisci_risorsa("res3");
+        try {   //Protettore di r3
+          do_task(r1,r3);
+          rilascia_risorsa(r3);
+          rilascia_risorsa(r1);
+        }
+        catch (...) {
+          rilascia_risorsa(r3);
+          throw;
+        }
+      }
+      catch (...) {
+        rilascia_risorsa(r1);
+        throw;
+    }
+</code></pre>
+
+<ul>
+<li>Throw senza parametri può essere lanciata solo da dentro un'eccezione e mi rilancia l'eccezione catturata, utilizza la neutralità rispetto alle eccezioni. È una caratteristica fondamentale per avere codice exception safe</li>
+<li>Metodo troppo verboso, ripetitivo e può generare numerosi errori. Viene infatti usato dai barbari dei programmatori java che però invece del catch utilizzano il finally che rilancia automaticamente l'eccezione senza riscrivere throw.</li>
+<li>Finally non è presente in C++ perchè c'è un'alternativa migliore che RAII - RRID :D</li>
+</ul>
+
+<h1>RAII - RRID</h1>
+
+<h3>Resource Acquisition Is Initialization</h3>
+
+<h3>Resource Release Is Destruction</h3>
+
+<pre><code>class RAII_RRID_Res {
+public:
+  RAII_RRID_Res(const char* name) {
+    r = acquisisci_risorsa(name);
+  }
+  ~RAII_RRID_Res(){
+    rilascia_risorsa(r);
+  }
+
+  //Costruttori di copia e spostamento
+  RAII_RRID_Res(const RAII_RRID_Res&amp;) = delete;
+  RAII_RRID_Res&amp; operator=(const RAII_RRID_Res&amp;) = delete;
+  //Facendo così disabilito questi due costruttori
+
+private:
+  Res* r;
+};  
+
+void job()
+{
+  RAII_RRID_Res r1("res1");
+  {
+    RAII_RRID_Res r2("res2");
+    do_task(r1,r2);
+    //Creo uno scope così elimino res2 quando mi pare ammé
+  }
+  RAII_RRID_Res r3("res3");
+  do_task(r1,r3);
+}
+</code></pre>
+
+<ul>
+<li>Tolgo le funzioni "rilascia_risorsa()" perchè, essendo le risorse oggetti della classe istanziati, quando finisce lo scope, il distruttore della classe viene chiamato e distrugge le risorse implicitamente.</li>
+<li>Il codice si rimpiccilisce, è più leggibile e non si ci può dimenticare di deallocare le risorse.</li>
+</ul>
+
+<p>Idioma RAII = costrutto linguistico che si applica solo in un particolare linguaggio e che non si può utilizzare in altri in quanto la traduzione non è possibile (come in java perchè non ha i costruttori).</p>
+
+<p>La classe di prima ha un problema, non ho modo di utilizzare le risorse perchè non ho un puntatore alla classe. Quindi:</p>
+
+<ul>
+<li>Uso un getter</li>
+<li>Faccio conversione implicita: <code>operator Res*() const {return r};</code></li>
+</ul>
+
+<p>Mancano anche le definizioni dei costruttori di copia e di spostamento che possono accedere ai membri anche se sono stati distrutti andando in <em>undefined behavoir</em>. Quindi se definisco un costruttore, se voglio fare le cose per bene, devo dichiarare anche gli altri costruttori (modifico il codice sopra mica lo riscrivo ;) )</p>
+
+</body>
+</html>
