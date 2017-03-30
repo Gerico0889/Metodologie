@@ -10,13 +10,13 @@
 ```C++
 void f(int* pi)
 {
-void* pv = pi;
-*pv; //non posso dereferenziare un puntatore a void*
-++pv;  //non posso incrementare perchè non so che tipo di dato è
-int* pi2 = static_cast<int*>(pv);  //conversione esplicita a int*
-double* pd1 = pv;  //non posso assegnare un void a un double
-double* pd2 = pi;  //stessa cosa
-double* pd3 = static_cast<double*>(pv);  //unsafe, implem. defined
+  void* pv = pi;
+  *pv; //non posso dereferenziare un puntatore a void*
+  ++pv;  //non posso incrementare perchè non so che tipo di dato è
+  int* pi2 = static_cast<int*>(pv);  //conversione esplicita a int*
+  double* pd1 = pv;  //non posso assegnare un void a un double
+  double* pd2 = pi;  //stessa cosa
+  double* pd3 = static_cast<double*>(pv);  //unsafe, implem. defined
 }
 ```
 ## nullptr
