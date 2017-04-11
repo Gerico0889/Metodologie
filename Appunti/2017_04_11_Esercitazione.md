@@ -275,7 +275,7 @@ void foo() {
 
 Ho messo un blocco che si apre alla prima risorsa e si chiude all'ultima. Se qualcosa va male nel catch rilancio l'eccezione, visto che l'ho fatto per tutte e tre le risorse allora sono exception safe. Anche perchè il distrutto della classe non può propagare eccezioni.
 
-## C++ e Smart Pointer
+## C++11 e Smart Pointer
 
 ``` C++
 #include <memory>
