@@ -5,7 +5,7 @@
 class Razionale {
 public:
   // Costruttore di default
-  constexpr Razionale(int num = 0, int den = 1);
+  /*constexpr*/ Razionale(int num = 0, int den = 1);
 
   // Rule of five, costruttore e assegnamento per copia e spostamento
   // vanno bene anche quelli di default
@@ -32,7 +32,10 @@ public:
   Razionale& operator*=(const Razionale& r);
   Razionale& operator/=(const Razionale& r);
 
-  std::ostream& print(ostream& os) const;
+  std::ostream& print(std::ostream& os) const;
+
+  int get_num() const;
+  int get_den() const;
   
   ~Razionale(){};
   
@@ -60,7 +63,7 @@ private:
 };
 
 // Funzione di stampa
-std::ostream& operator<<(ostream& os, const Razionale& r);
+std::ostream& operator<<(std::ostream& os, const Razionale& r);
 
 // Operatori di confronto
 bool operator==(const Razionale& r, const Razionale& y);

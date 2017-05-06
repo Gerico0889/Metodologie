@@ -5,7 +5,7 @@
 #define NDEBUG
 
 Razionale::Razionale(int num, int den) : num_{num}, den_{den} {
-  assert(den_ == 0);
+  assert(den_ != 0);
   normalize();
   test_invariant();
 }
@@ -14,22 +14,40 @@ int Razionale::abs(int x) {
   return (x < 0 ? -x : x);
 }
 
+int Razionale::get_num() const {
+  return num_;
+}
+
+int Razionale::get_den() const {
+  return den_;
+}
+
 bool Razionale::test_invariant() const {
   if (den_ <= 0) return false;
-  else if (num_ == 0) return (den == 1);
-  else if (!(is_normalized(abs(num_, den_)))) return false;
+  else if (num_ == 0) return (den_ == 1);
+  else if (!(is_normalized(abs(num_), abs(den_)))) return false;
   return true;
 }
 
 bool Razionale::is_normalized(int x, int y) {
-  int val = gdc(x, y);
+  int val = gcd(x, y);
 
   if (val == 0 || val == 1 || val == y) return true;
   return false;
 }
 
+void Razionale::normalize() {
+  int x = gcd(num_, den_);
+  if (x == 1) return;
+  num_ /= x;
+  den_ /= x;
+  if (!(is_normalized(num_, den_))) normalize();
+  else return;
+}
+
 Razionale Razionale::operator+() const{
-  return *this;
+  Razionale tmp {num_, den_};
+  return tmp;
 }
 
 Razionale Razionale::operator-() const{
@@ -41,122 +59,124 @@ Razionale Razionale::operator-() const{
 
 Razionale& Razionale::operator++() {
   num_ += den_;
-  nomalize();
+  normalize();
   assert(test_invariant());
   return *this;
 }
 
 Razionale& Razionale::operator--() {
   num_ -= den_;
-  nomalize();
+  normalize();
   assert(this->test_invariant());
   return *this;
 }
 
 Razionale Razionale::operator++(int x) {
-  Razionale tmp {*this}
+  Razionale tmp {*this};
   ++(*this);
-  nomalize();
+  normalize();
   assert(test_invariant());
   return tmp;
 }
 
 Razionale Razionale::operator--(int x) {
-  Razionale tmp = *this;
+  Razionale tmp {*this};
   --(*this);
-  nomalize();
+  normalize();
   assert(test_invariant());
   return tmp;
 }
 
-Razionale& Razionale::operator+=(const Razionale& r) {
-  assert(r.test_invariant());
-  num_ = (den_ * r.num_) + (y.den_ * num_);
-  den_ *= y.den_;
-  nomalize();
+Razionale& Razionale::operator+=(const Razionale& x) {
+  assert(x.test_invariant());
+  num_ = (den_ * x.num_) + (x.den_ * num_);
+  den_ *= x.den_;
+  normalize();
   assert(test_invariant());
   return *this;
 }
 
-Razionale& Razionale::operator-=(const Razionale& r) {
-  assert(r.test_invariant());
-  num_ = (den_ * r.num_) - (y.den_ * num_);
-  den_ *= y.den_;
-  nomalize();
+Razionale& Razionale::operator-=(const Razionale& x) {
+  assert(x.test_invariant());
+  num_ = (den_ * x.num_) - (x.den_ * num_);
+  den_ *= x.den_;
+  normalize();
   assert(test_invariant());
   return *this;
 }
 
-Razionale& Razionale::operator*=(const Razionale& r) {
-  assert(r.test_invariant());
-  num_ *= r.num_;
-  den_ *= r.den_;
-  nomalize();
+Razionale& Razionale::operator*=(const Razionale& x) {
+  assert(x.test_invariant());
+  num_ *= x.num_;
+  den_ *= x.den_;
+  normalize();
   assert(test_invariant());
+  return *this;
 }
 
-Razionale& Razionale::operator/=(const Razionale& r) {
-  assert(r.test_invariant());
-  num_ /= r.num_;
-  den_ /= r.den_;
-  nomalize();
+Razionale& Razionale::operator/=(const Razionale& x) {
+  assert(x.test_invariant());
+  num_ *= x.den_;
+  den_ *= x.num_;
+  normalize();
   assert(test_invariant());
+  return *this;
 }
 
-bool Razionale::operator==(const Razionale& r,const Razionale& y) {
-  if (r.num_ == y.num_ && r.den_ == y.den_) return true;
+bool operator==(const Razionale& x, const Razionale& y) {
+  if (x.get_num() == y.get_num() && x.get_den() == y.get_den()) return true;
   return false;
 }
 
-bool Razionale::operator!=(const Razionale& r,const Razionale& y) {
-  return !(r == y);
+bool operator!=(const Razionale& x, const Razionale& y) {
+  return !(x == y);
 }
 
-bool Razionale::operator<(const Razionale& r,const Razionale& y) {
-  float a = r.num_ / r.den_;
-  float b = y.num_ / y.den_;
+bool operator<(const Razionale& x, const Razionale& y) {
+  float a = x.get_num() / x.get_den();
+  float b = y.get_num() / y.get_den();
   return (a < b);
 }
 
-bool Razionale::operator>(const Razionale& r,const Razionale& y) {
-  return !(r < y);
+bool operator>(const Razionale& x, const Razionale& y) {
+  return !(x < y);
 }
 
-bool Razionale::operator<=(const Razionale& r,const Razionale& y) {
-  return (r == y || r < y);
+bool operator<=(const Razionale& x, const Razionale& y) {
+  return (x == y || x < y);
 }
 
-bool Razionale::operator>=(const Razionale& r,const Razionale& y) {
-  return (r == y || r > y);
+bool operator>=(const Razionale& x, const Razionale& y) {
+  return (x == y || x > y);
 }
 
-Razionale Razionale::operator+(Razionale r, const Razionale& y) {
-  r += y;
-  return r;
+Razionale operator+(Razionale x, const Razionale& y) {
+  x += y;
+  return x;
 }
 
-Razionale Razionale::operator-(Razionale r, const Razionale& y) {
-  r -= y;
-  return r;
+Razionale operator-(Razionale x, const Razionale& y) {
+  x -= y;
+  return x;
 }
 
-Razionale Razionale::operator*(Razionale r, const Razionale& y) {
-  r *= y;
-  return r;
+Razionale operator*(Razionale x, const Razionale& y) {
+  x *= y;
+  return x;
 }
 
-Razionale Razionale::operator/(Razionale r, const Razionale& y) {
-  r /= y;
-  return r;
+Razionale operator/(Razionale x, const Razionale& y) {
+  x /= y;
+  return x;
 }
 
-std::ostream& print(ostream& os) {
+std::ostream& Razionale::print(std::ostream& os) const{
   os << num_ << "/" << den_ << "\n";
   return os;
 }
 
-std::ostream& operator<<(ostream& os, const Razionale& r) {
-  print(os);
+std::ostream& operator<<(std::ostream& os, const Razionale& x) {
+  x.print(os);
 }
 
 int Razionale::gcd(int x, int y) {
@@ -166,15 +186,15 @@ int Razionale::gcd(int x, int y) {
   if( x == 0 && y == 0) return 0;
   else if(x == 0 && y != 0) return abs(y);
   else if(!(x % 2)) {
-    if(!(y % 2)) return 2 * mcd(x / 2, y / 2);
-    else if(!(y % 1)) return mcd(x / 2, y);
+    if(!(y % 2)) return 2 * gcd(x / 2, y / 2);
+    else if(!(y % 1)) return gcd(x / 2, y);
   }
 
   else if(!(x % 1)) {
-    if(!(y % 2)) return mcd(x , y / 2);
+    if(!(y % 2)) return gcd(x , y / 2);
     else if(!(y % 1)) {
-      if(x >= y) return mcd((x - y) / 2, y);
-      else if(x < y) return mcd((y - x) / 2, x);
+      if(x >= y) return gcd((x - y) / 2, y);
+      else if(x < y) return gcd((y - x) / 2, x);
     }
   }
 }
