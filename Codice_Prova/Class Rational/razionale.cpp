@@ -41,8 +41,7 @@ void Razionale::normalize() {
   if (x == 1) return;
   num_ /= x;
   den_ /= x;
-  if (!(is_normalized(num_, den_))) normalize();
-  else return;
+  return;
 }
 
 Razionale Razionale::operator+() const{
