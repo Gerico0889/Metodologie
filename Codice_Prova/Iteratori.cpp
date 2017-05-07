@@ -25,7 +25,10 @@ int main() {
     std::cout << '\n' << '\n';
     
     std::vector<int> v2 {7, 9, 5, 6, 4, 8, 3, 15, 26, 14, 19};
-    auto y = minnn<std::vector<int>::iterator>(v2.begin(), v2.end() - 3);
+    // auto y = minnn<std::vector<int>::iterator>(v2.begin(), v2.end() - 3);
+    // La funzione templatica mi deduce da sola il tipo per il quale deve
+    // essere instanziata, quindi non c'è bisogno che lo specifico io
+    auto y = minnn<>(v2.begin(), v2.end() - 3);
     std::cout << *y;
     return 0;
 }
