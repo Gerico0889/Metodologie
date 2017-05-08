@@ -45,8 +45,7 @@ void Razionale::normalize() {
 }
 
 Razionale Razionale::operator+() const{
-  Razionale tmp {num_, den_};
-  return tmp;
+  return *this;
 }
 
 Razionale Razionale::operator-() const{

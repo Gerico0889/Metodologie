@@ -9,7 +9,7 @@ public:
 
   // Rule of five, costruttore e assegnamento per copia e spostamento
   // vanno bene anche quelli di default
-  /*constexpr*/ explicit Razionale(const Razionale&) = default;
+  /*constexpr*/ Razionale(const Razionale&) = default;
   Razionale(Razionale&&) = default;
   Razionale& operator=(const Razionale&) = default;
   Razionale& operator=(Razionale&&) = default;
